@@ -19,54 +19,91 @@ public class CustomLinkedList<E> implements CustomList<E> {
         }
     }
 
-    @Override
     public boolean add(E e) {
         return add(realSize, e);
     }
 
-    @Override
     public boolean add(int index, E e) {
         checkIfIndexIsAddable(index);
-        //first node
-        if (realSize == 0) {
-            first = new Node<>(null, e, null);
-            last = first;
-            realSize++;
-            System.out.println(realSize);
-            return true;
+        if (index == realSize) {
+            return addLast(e);
+        } else {
+            return addBefore(index, e);
         }
-        if (realSize > 0) {
-            //add to beginning
-            if (index == 0) {
-                Node<E> newNode = new Node<>(null, e, first);
-                first.prev = newNode;
-                first = newNode;
-                realSize++;
-                System.out.println(realSize);
-                return true;
-            }
-            //add to end
-            if (index == realSize) {
-                Node<E> newNode = new Node<>(last, e, null);
-                last.next = newNode;
-                last = newNode;
-                realSize++;
-                System.out.println(realSize);
-                return true;
-            }
-            //add between elements
+    }
+
+    public boolean remove(E e) {
+        if (e != null && realSize > 0) {
             Node<E> node = first;
             for (int i = 0; i < realSize; i++) {
-                if (i == index) {
-                    Node<E> newNode = new Node<>(node.prev, e, node);
-                    node.prev = newNode;
-                    node.prev.next = newNode;
-                    realSize++;
-                    System.out.println(realSize);
-                    return true;
+                if (node.data.equals(e)) {
+                    return remove(i);
                 }
                 node = node.next;
             }
+        }
+        return false;
+    }
+
+    public boolean remove(int index) {
+        checkIfIndexIsGettable(index);
+        Node<E> node = first;
+        for (int i = 0; i < realSize; i++) {
+            if (i == index) {
+                //found
+                if (node.prev == null) {
+                    //first
+                    first = node.next;
+                }
+                if (node.next == null) {
+                    //last
+                    last = node.prev;
+                }
+                if (node.next != null) {
+                    node.next.prev = node.prev;
+                }
+                if (node.prev != null) {
+                    node.prev.next = node.next;
+                }
+                realSize--;
+                return true;
+            }
+            node = node.next;
+        }
+        return false;
+    }
+
+    private boolean addLast(E e) {
+        if (last != null) {
+            Node<E> node = new Node<>(last, e, null);
+            last.next = node;
+            last = node;
+        } else {
+            //no elements
+            last = new Node<>(null, e, null);
+            first = last;
+        }
+        realSize++;
+        return true;
+    }
+
+    private boolean addBefore(int index, E e) {
+        Node<E> node = first;
+        for (int i = 0; i < realSize; i++) {
+            if (i == index) {
+                if (node.prev != null) {
+                    Node<E> newNode = new Node<>(node.prev, e, node);
+                    node.prev.next = newNode;
+                    node.prev = newNode;
+                } else {
+                    Node<E> newNode = new Node<>(null, e, node);
+                    node.prev = newNode;
+                    first = newNode;
+                }
+                realSize++;
+                return true;
+            }
+            node = node.next;
         }
         return false;
     }
@@ -82,56 +119,6 @@ public class CustomLinkedList<E> implements CustomList<E> {
             node = node.next;
         }
         return null;
-    }
-
-    @Override
-    public boolean remove(E e) {
-        if (e != null && realSize > 0) {
-            Node<E> node = first;
-            for (int i = 0; i < realSize; i++) {
-                if (node.data.equals(e)) {
-                    return remove(i);
-                }
-                node = node.next;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean remove(int index) {
-        checkIfIndexIsGettable(index);
-        Node<E> node = first;
-        for (int i = 0; i < realSize; i++) {
-            if (i == index) {
-                //found
-                if (index == 0) {
-                    //remove at beginning
-                    if (realSize == 1) {
-                        //remove last element
-                        first = null;
-                        last = null;
-                    } else {
-                        node.next.prev = null;
-                        first = node.next;
-                    }
-                } else if (index == realSize - 1) {
-                    //remove at end
-                    node.prev.next = null;
-                    last = node.prev;
-                } else {
-                    //removing between elements
-                    node.prev.next = node.next;
-                    node.next.prev = node.prev;
-                }
-                realSize--;
-                return true;
-            }
-            node = node.next;
-        }
-
-        return false;
-
     }
 
     private static class Node<E> {
