@@ -19,10 +19,12 @@ public class CustomLinkedList<E> implements CustomList<E> {
         }
     }
 
+    @Override
     public boolean add(E e) {
         return add(realSize, e);
     }
 
+    @Override
     public boolean add(int index, E e) {
         checkIfIndexIsAddable(index);
         if (index == realSize) {
@@ -32,6 +34,7 @@ public class CustomLinkedList<E> implements CustomList<E> {
         }
     }
 
+    @Override
     public boolean remove(E e) {
         if (e != null && realSize > 0) {
             Node<E> node = first;
@@ -45,30 +48,27 @@ public class CustomLinkedList<E> implements CustomList<E> {
         return false;
     }
 
+    @Override
     public boolean remove(int index) {
-        checkIfIndexIsGettable(index);
-        Node<E> node = first;
-        for (int i = 0; i < realSize; i++) {
-            if (i == index) {
-                //found
-                if (node.prev == null) {
-                    //first
-                    first = node.next;
-                }
-                if (node.next == null) {
-                    //last
-                    last = node.prev;
-                }
-                if (node.next != null) {
-                    node.next.prev = node.prev;
-                }
-                if (node.prev != null) {
-                    node.prev.next = node.next;
-                }
-                realSize--;
-                return true;
+        Node<E> node = findNode(index);
+        if (node != null) {
+            //found
+            if (node.prev == null) {
+                //first
+                first = node.next;
             }
-            node = node.next;
+            if (node.next == null) {
+                //last
+                last = node.prev;
+            }
+            if (node.next != null) {
+                node.next.prev = node.prev;
+            }
+            if (node.prev != null) {
+                node.prev.next = node.next;
+            }
+            realSize--;
+            return true;
         }
         return false;
     }
@@ -88,36 +88,54 @@ public class CustomLinkedList<E> implements CustomList<E> {
     }
 
     private boolean addBefore(int index, E e) {
-        Node<E> node = first;
-        for (int i = 0; i < realSize; i++) {
-            if (i == index) {
-                if (node.prev != null) {
-                    Node<E> newNode = new Node<>(node.prev, e, node);
-                    node.prev.next = newNode;
-                    node.prev = newNode;
-                } else {
-                    Node<E> newNode = new Node<>(null, e, node);
-                    node.prev = newNode;
-                    first = newNode;
-                }
-                realSize++;
-                return true;
+        Node<E> node = findNode(index);
+        if (node != null) {
+            if (node.prev != null) {
+                Node<E> newNode = new Node<>(node.prev, e, node);
+                node.prev.next = newNode;
+                node.prev = newNode;
+            } else {
+                Node<E> newNode = new Node<>(null, e, node);
+                node.prev = newNode;
+                first = newNode;
             }
-            node = node.next;
+            realSize++;
+            return true;
         }
         return false;
     }
 
     @Override
     public E get(int index) {
-        checkIfIndexIsGettable(index);
-        Node<E> node = first;
-        for (int i = 0; i < realSize; i++) {
-            if (i == index) {
-                return node.data;
-            }
-            node = node.next;
+        Node<E> node = findNode(index);
+        if (node != null) {
+            return node.data;
+        } else {
+            return null;
         }
+    }
+
+    private Node<E> findNode(int index) {
+        checkIfIndexIsGettable(index);
+        int border = (realSize - 1) / 2;
+        if (index <= border){
+            Node<E> node = first;
+            for (int i = 0; i <= border; i++) {
+                if (i == index) {
+                    return node;
+                }
+                node = node.next;
+            }
+        } else {
+            Node<E> node = last;
+            for (int i = realSize - 1; i > border; i--) {
+                if (i == index) {
+                    return node;
+                }
+                node = node.prev;
+            }
+        }
+        //unreachable due to check
         return null;
     }
 
