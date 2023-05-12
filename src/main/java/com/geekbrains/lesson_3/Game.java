@@ -1,11 +1,12 @@
 package com.geekbrains.lesson_3;
 
 public class Game {
-    private boolean turnA = true;
 
-    public synchronized void playSideA() {
+    private boolean turn = true;
 
-        while(!turnA) {
+    public synchronized void playSide(boolean side) {
+
+        while(turn != side) {
             try {
                 wait();
             } catch (InterruptedException e) {
@@ -17,26 +18,12 @@ public class Game {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        System.out.println("Ping");
-        turnA = false;
-        notify();
-    }
-
-    public synchronized void playSideB() {
-        while(turnA){
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+        if (turn) {
+            System.out.println(Thread.currentThread().getName() + ": Ping");
+        } else {
+            System.out.println(Thread.currentThread().getName() + ": Pong");
         }
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println("Pong");
-        turnA = true;
+        turn = !turn;
         notify();
     }
 }
