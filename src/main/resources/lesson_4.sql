@@ -217,4 +217,5 @@ left join next_movies
 on s1.id = next_movies.m1_sid
 where next_movies.m2_start_time = s2.start_time
 and s2.start_time - s1.start_time - interval '1 minute' * m1.duration >= interval '1 minute' * 30
+and s2.hall_id = next_movies.m1_hid
 order by idle_time desc;
